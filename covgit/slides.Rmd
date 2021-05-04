@@ -335,7 +335,16 @@ sea_linkedin = read_fst(paste0(ddir, 'sea-linkedin.fst')); setDT(sea_linkedin)
 
 # Preview
 
-We use a ~~novel~~ criminally underused observational dataset from the tech sector: **GitHub** ([www.github.com](www.github.com))
+We analyse the impact of COVID-19 on tech sector productivity using data from: **GitHub** ([www.github.com](www.github.com))
+
+- Several terabytes of data and incredibly high temporal resolution.
+- For a subset of users, we are also able to match location, job description, and gender.
+
+Main findings:
+
+- COVID-19 led to large and distinct changes in workplace habits at the global level.
+- More work online overall and more done outside of traditional office hours.
+- However, global trends mask quite a lot of heterogeneity at the local level.
 
 ---
 
@@ -977,6 +986,37 @@ age_gender_plot(sea_linkedin[gender=='male' & age=='40--49'])
 age_gender_plot(sea_linkedin[gender=='female' & age=='40--49'])
 ```
 
+---
+class: inverse, center, middle
+name: conclusion
+
+# Conclusions
+
+---
+
+# Aside: DiD example (London)
+
+```{r lon-did-png}
+knitr::include_graphics('pics/lon-did.png')
+```
+---
+
+# Conclusions
+
+We use a ~~novel~~ criminally underused observational dataset from the tech sector: **GitHub** ([www.github.com](www.github.com))
+
+- The first of (hopefully) many projects using these data.
+
+We see a pronounced realloction of work habits at the global level.
+
+- Overall increase in activity and more work on weekends.
+- These trends persist for most of 2021, although some reversion to baseline.
+
+Global trends mask considerable heterogeneity at the local level.
+
+- Generally coincide with local lockdowns and remote work mandates, but different work "cultures" and demographic features yield differential results.... sometimes of the opposing sign.
+
+Panel-based analysis is potentially complicated (SUTVA violations), although year-on-year and BSTS comparisons comfirm what is directly observerable in the data.
 
 ```{r gen_pdf, include = FALSE, cache = FALSE, eval = FALSE}
 infile = list.files(pattern = '.html')
