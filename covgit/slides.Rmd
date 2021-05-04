@@ -196,85 +196,12 @@ daily_diff_plot =
         scales = 'free_y', nrow = 2,
         labeller = labeller(pnl = function(x) gsub("diff|raw", "", x))
         )
-    # p + ggsave(here('figs', paste0(suff, '-diff.png')), width = 8, height =5)
-    # p + ggsave(here('figs/PDF', paste0(suff, '-diff.pdf')), width = 8, height =5, device = cairo_pdf)
-    return(p)
-  }
-
-diff_plot = 
-  function(data, measure = c('events', 'users', 'both'), 
-           start_date = '2020-12-01', end_date = '2020-05-31',
-           treat_date = NULL, hide_treated = FALSE) {
-    mcols = match.arg(measure)
-    if (mcols=='both') mcols = c('events', 'users')
-    start_date = as.Date(start_date)
-    end_date = as.Date(end_date)
-    if(!is.null(treat_date)) treat_date = as.IDate(treat_date)
-    ## Get the date offset for comparing year on year (i.e. match weekends with 
-    ## weekends, etc.). Note that we take the median value to avoid weekday 
-    ## discontinuities (i.e. start of new week in one year vs old week in 
-    ## another).
-    date_offset = 365 + median(wday(data$date) - wday(data$date+365)) 
     
-    treat_grp = paste(unique(year(c(start_date, end_date))), collapse = '_')
-    comp_grp = paste(unique(year(c(start_date, end_date)-date_offset)), collapse = '_')
-
-    d = copy(data) %>%
-      .[, c('date', 'location', ..mcols)] %>%
-      melt(measure = mcols, variable = 'type', value = 'y') %>%
-      .[, date_offset := date + date_offset] %>%
-      melt(id.vars = c('location', 'type', 'y')) %>%
-      .[value >= start_date & value <= end_date] %>%
-      .[, .(y = sum(y)), by = .(location, type, variable, value)] %>% ## ICO any remaining duplicates
-      dcast(location + type + value ~ variable, value.var = 'y') #%>%
-      # .[, Difference := date - date_offset]
-    d = 
-      melt(d, id.vars = c('location', 'type', 'value'), value.name = 'y') %>%
-      .[, grp := fifelse(variable=='date', 
-                         treat_grp,  
-                         fifelse(variable=='date_offset', 
-                                 comp_grp, 
-                                 paste(variable)))] #%>%
-      # .[, pnl := factor(fifelse(variable=='Difference', 'diff', 'raw'), 
-      #                   levels = c('raw', 'diff'))]
-    
-    # col_vals = c('grey50', 'dodgerblue', 'black')
-    # names(col_vals) = c(comp_grp, treat_grp, 'Difference')
-    col_vals = c('grey50', 'dodgerblue')
-    names(col_vals) = c(comp_grp, treat_grp)
-    if (hide_treated) d[date>=treat_date & grp==treat_grp, y := NA]
-    
-    p =
-      ggplot(d, aes(value, y, col = grp, fill = grp, group = grp)) + 
-      geom_line() +
-      # geom_area(data = d[pnl=='diff'], alpha = 0.3, show.legend = FALSE) +
-      scale_x_date(date_breaks = '1 month', date_labels = '%b') +
-      scale_y_continuous(labels = scales::comma) +
-      scale_colour_manual(values = col_vals, aesthetics = c('colour', 'fill')) +
-      labs(y = 'Daily value') +
-      theme(
-        axis.title.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = 'bottom'
-      ) + 
-      geom_vline(xintercept = treat_date, lty = 2) +
-      facet_wrap(
-        # pnl ~ location + stringr::str_to_title(type), 
-        ~ location + stringr::str_to_title(type),
-        scales = 'free_y', nrow = 2#,
-        # labeller = labeller(pnl = function(x) gsub("diff|raw", "", x))
-        )
-    # p + ggsave(here('figs', paste0(suff, '-diff.png')), width = 8, height =5)
-    # p + ggsave(here('figs/PDF', paste0(suff, '-diff.pdf')), width = 8, height =5, device = cairo_pdf)
     return(p)
   }
 
 age_gender_plot = function(d, i = 'events') {
     tmp = copy(d)
-    # tmp2 = CJ(gender = unique(d$gender), 
-    #           age = unique(d$age), 
-    #           date = seq(min(d$date), max(d$date), by = "1 day"))
-    # tmp = merge(tmp2, tmp, all = TRUE)[is.na(events), events := 0][is.na(users), users := 0]
     tmp =
       melt(tmp[!is.na(gender) & !is.na(age)
              ][date>="2020-02-15" & date<"2020-05-01"
@@ -289,21 +216,11 @@ age_gender_plot = function(d, i = 'events') {
         geom_line() + 
         geom_point(data = tmp[weekdays(date) %in% c('Saturday', 'Sunday')], col = 'red') +
         facet_wrap(~age+gender, scales = "free_y", ncol = 2) +
-        # annotate("rect", fill = "orange", alpha = 0.3, 
-        #          xmin = as.IDate('2020-03-04'), xmax = as.IDate('2020-03-23'),
-        #          ymin = -Inf, ymax = Inf)  + 
         geom_vline(
           xintercept = as.IDate(c('2020-03-04', '2020-03-12', '2020-03-23')), 
-          #col = 'grey50', 
           col = 'dodgerblue', lwd = 0.4, lty = 2
           ) + 
-        labs(
-          y = i#,
-          # title = "Seattle GitHub activity in early 2020", 
-          # subtitle = "Only includes users matched to a LinkedIn profile", 
-          # caption = "Bounds of the orange shaded region denote: 1. MS mandates remote work (first large tech co. to do so), and 2. Mayoral stay-at-home order.\nVertical dashed line denotes school closures."
-          )
-      # p + ggsave(paste0('seattle-linkedin-gender-age-', i,'.png'), width = 14, height = 9)
+        labs(y = i)
       print(p)
   }
 ```
@@ -337,7 +254,7 @@ sea_linkedin = read_fst(paste0(ddir, 'sea-linkedin.fst')); setDT(sea_linkedin)
 
 We analyse the impact of COVID-19 on tech sector productivity using data from: **GitHub** ([www.github.com](www.github.com))
 
-- Several terabytes of data and incredibly high temporal resolution.
+- Several terabytes of data at incredibly high temporal resolution.
 - For a subset of users, we are also able to match location, job description, and gender.
 
 Main findings:
@@ -362,15 +279,15 @@ To single out a few favourites and (most) closely related.
 
  Alternative data:
 
-- Google Trends (e.g. [Brodeur et. al., JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720302103))
-- Electricity (e.g. [Cicala, NBER WP 2020](https://www.nber.org/digest-202012/working-homes-impact-electricity-use-pandemic))
-- Cellphone (e.g. [Goolsbee & Syverson, JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720301754); [Harris, NBER WP 2020](https://www.nber.org/papers/w28132); [Bravata et. al., NBER WP 2021](https://www.nber.org/papers/w28645))
-- Consumer spending, job postings, etc. (e.g. [Chetty et al., NBER WP 2020](https://www.nber.org/papers/w27431); [Forsythe et. al., JPubE, 2021](https://www.sciencedirect.com/science/article/abs/pii/S004727272030102X))
+- Google Trends (e.g. Brodeur et. al., [JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720302103))
+- Electricity (e.g. Cicala, [NBER WP 2020](https://www.nber.org/digest-202012/working-homes-impact-electricity-use-pandemic))
+- Cellphone (e.g. Goolsbee & Syverson, [JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720301754); Harris, [NBER WP 2020](https://www.nber.org/papers/w28132); Bravata et. al., [NBER WP 2021](https://www.nber.org/papers/w28645))
+- Consumer spending, job postings, etc. (e.g. Chetty et al., [NBER WP 2020](https://www.nber.org/papers/w27431); Forsythe et. al., [JPubE, 2021](https://www.sciencedirect.com/science/article/abs/pii/S004727272030102X))
 
 Gendered outcomes: 
 
-- [Deryugina et al. (AEA P&P, 2021](https://secureservercdn.net/166.62.111.84/0zv.ccf.myftpupload.com/wp-content/uploads/2021/02/NBER-Working-Paper-Deryugina_Shurchkov_Stearns_2021.pdf))
-- [Albanesi and Kim (NBER WP, 2021](https://www.nber.org/papers/w28505))
+- Deryugina et al. ([AEA P&P, 2021](https://secureservercdn.net/166.62.111.84/0zv.ccf.myftpupload.com/wp-content/uploads/2021/02/NBER-Working-Paper-Deryugina_Shurchkov_Stearns_2021.pdf))
+- Albanesi and Kim ([NBER WP, 2021](https://www.nber.org/papers/w28505))
 
 Labour market adjustment and WFH: 
 
@@ -994,11 +911,12 @@ name: conclusion
 
 ---
 
-# Aside: DiD example (London)
+# Aside: DiD example (London time of day)
 
 ```{r lon-did-png}
 knitr::include_graphics('pics/lon-did.png')
 ```
+
 ---
 
 # Conclusions
@@ -1007,7 +925,7 @@ We use a ~~novel~~ criminally underused observational dataset from the tech sect
 
 - The first of (hopefully) many projects using these data.
 
-We see a pronounced realloction of work habits at the global level.
+We see a pronounced reallocation of work habits at the global level.
 
 - Overall increase in activity and more work on weekends.
 - These trends persist for most of 2021, although some reversion to baseline.
@@ -1016,7 +934,7 @@ Global trends mask considerable heterogeneity at the local level.
 
 - Generally coincide with local lockdowns and remote work mandates, but different work "cultures" and demographic features yield differential results.... sometimes of the opposing sign.
 
-Panel-based analysis is potentially complicated (SUTVA violations), although year-on-year and BSTS comparisons comfirm what is directly observerable in the data.
+Panel-based analysis is potentially complicated (SUTVA violations), although year-on-year and BSTS comparisons confirm what is directly observable in the data.
 
 ```{r gen_pdf, include = FALSE, cache = FALSE, eval = FALSE}
 infile = list.files(pattern = '.html')
