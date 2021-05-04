@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Working remotely or remotely working?</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Grant McDermott (with Kendall Houghton and Ben Hansen)" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mycss.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Working remotely or remotely working?
+## The effect of COVID-19 on tech worker productivity
+### Grant McDermott (with Kendall Houghton and Ben Hansen)
+### University of Oregon
+
+---
+
+class: inverse, center, middle
+name: prologue
+
+&lt;style type="text/css"&gt;
+# CSS for including pauses in printed PDF output (see bottom of lecture)
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+&lt;/style&gt;
+
+
+
+
+
+
+
+
+
+
+&lt;!-- # Table of contents --&gt;
+
+&lt;!-- 1. [Prologue](#prologue) --&gt;
+
+&lt;!-- --- --&gt;
+
+
+# Introduction
+
+---
+
+# Preview
+
+We use a ~~novel~~ criminally underused observational dataset from the tech sector: **GitHub** ([www.github.com](www.github.com))
+
+---
+
+# Related literature
+
+--
+count:false
+
+Look, there's a lot of it. _Many_ journals with COVID-19 special issues and colloquia. (E.g. [JPupE](https://www.sciencedirect.com/journal/journal-of-public-economics/special-issue/10JWB645FT5).)
+
+--
+count:false
+
+To single out a few favourites and (most) closely related.
+
+ Alternative data:
+
+- Google Trends (e.g. [Brodeur et. al., JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720302103))
+- Electricity (e.g. [Cicala, NBER WP 2020](https://www.nber.org/digest-202012/working-homes-impact-electricity-use-pandemic))
+- Cellphone (e.g. [Goolsbee &amp; Syverson, JPubE 2021](https://www.sciencedirect.com/science/article/pii/S0047272720301754); [Harris, NBER WP 2020](https://www.nber.org/papers/w28132); [Bravata et. al., NBER WP 2021](https://www.nber.org/papers/w28645))
+- Consumer spending, job postings, etc. (e.g. [Chetty et al., NBER WP 2020](https://www.nber.org/papers/w27431); [Forsythe et. al., JPubE, 2021](https://www.sciencedirect.com/science/article/abs/pii/S004727272030102X))
+
+Gendered outcomes: 
+
+- [Deryugina et al. (AEA P&amp;P, 2021](https://secureservercdn.net/166.62.111.84/0zv.ccf.myftpupload.com/wp-content/uploads/2021/02/NBER-Working-Paper-Deryugina_Shurchkov_Stearns_2021.pdf))
+- [Albanesi and Kim (NBER WP, 2021](https://www.nber.org/papers/w28505))
+
+Labour market adjustment and WFH: 
+
+- Barrero et. al. ([NBER WP, 2021](https://www.nber.org/papers/w28731))
+- Bartik et. al. ([PNAS, 2020](https://www.pnas.org/content/early/2020/07/09/2006991117); [Brookings, 2021](https://www.brookings.edu/wp-content/uploads/2020/06/Bartik-et-al-conference-draft.pdf); [NBER WP, 2020](https://www.nber.org/papers/w27422))
+
+---
+
+# Just yesterday
+
+.pull-left[
+&lt;img src="pics/leonhardt-tweet-covid-schools.png" width="95%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+Source: https://twitter.com/DLeonhardt/status/1389196436177358852
+
+Article: https://www.nytimes.com/2021/05/03/briefing/schools-reopening-working-mothers.html
+]
+
+---
+class: inverse, center, middle
+name: github
+
+# GitHub
+
+---
+
+# What is Git(Hub)?
+
+### Git
+
+- A distributed version control system (created by Linus Torvalds to help manage contributions to the Linux kernel).
+
+- "Imagine that Dropbox and the 'Track Changes' feature in MS Word had a baby. Git would be that baby."
+
+- Git is a program that lives on your computer.
+
+### GitHub
+
+- Cloud service that builds on top of Git, providing an array of additional features. Easy to share and contribute to code online, host files and websites, etc.
+
+- There are other, similar platforms. But GitHub is by far the largest.
+
+- More than 30 million user accounts (including 2.5 million with some form of geographic identification).
+
+---
+
+# Data access
+
+
+Live session example(s).
+- [GitHub](https://github.com/grantmcdermott) | [API](https://api.github.com/users/grantmcdermott) | [BigQuery](https://console.cloud.google.com/bigquery?project=mcd-lab&amp;p=githubarchive&amp;d=year&amp;t=2020&amp;page=table)
+
+--
+count:false
+
+Key takeaways: Git(Hub) is  version control platform that allows millions of users to carefully track and edit code.
+
+- Activity is documented _to the second_ and logged via the GitHub API.
+
+--
+count:false
+
+Key data sources: [GH Archive](https://www.gharchive.org/) and [GH Torrent](https://ghtorrent.org/).
+- Both provide data access via Google BigQuery.
+
+--
+count:false
+
+Our primary measure of activity is GitHub "[events](https://docs.github.com/en/developers/webhooks-and-events/github-event-types)".
+- _Pushes_ (can contain multiple _commits_), _Pulls_, _Issues_, _Comments_, _Pull Requests_, etc.
+- We also measure "users". How many people logged on at least once during the relevant time period (day, hour, etc.)
+- Limitations: Only see public repos. Don't have geographic/demographic info for everyone (and mostly self-reported where we do).
+
+---
+
+# Top cities by geo-tagged users
+
+.pull-left[
+&lt;img src="pics/top-cities.png" width="95%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+In the slides that follow, I'm going to focus on the top 5 plus Seattle (no. 7).
+]
+
+---
+class: center, middle
+
+(Are you ready for lots of plots?)
+
+---
+class: inverse, center, middle
+name: raw
+
+# Raw event data
+
+---
+
+# Global
+
+&lt;img src="slides_files/figure-html/g_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# London
+
+&lt;img src="slides_files/figure-html/lon_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# NYC
+
+&lt;img src="slides_files/figure-html/nyc_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# SFO
+
+&lt;img src="slides_files/figure-html/sfo_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Beijing
+
+&lt;img src="slides_files/figure-html/bei_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Bengalaru
+
+&lt;img src="slides_files/figure-html/blr_daily_diff-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: inverse, center, middle
+name: reallocation
+
+# Labour reallocation
+
+---
+# Global activity on weekends
+
+&lt;img src="slides_files/figure-html/g_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# Global activity on weekends
+
+&lt;img src="slides_files/figure-html/g_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+name: cities
+
+# Cities
+
+Okay, so a big shift in work habits at the global level.
+
+What about individual cities?
+
+- Let's take a look.
+
+--
+count:false
+
+At the same time, for users in a common geography/timezone, we can drill down further to look at labour reallocation *within a day*.
+
+- Are people working more outside of regular work hours? (Here: defined as **9 am to 6 pm**.)
+
+---
+
+# London: Activity on weekends
+
+&lt;img src="slides_files/figure-html/lon_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# London: Activity on weekends
+
+&lt;img src="slides_files/figure-html/lon_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# London: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/lon_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# London: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/lon_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Beijing: Activity on weekends
+
+&lt;img src="slides_files/figure-html/bei_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# Beijing: Activity on weekends
+
+&lt;img src="slides_files/figure-html/bei_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Beijing: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/bei_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# Beijing: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/bei_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Bengaluru: Activity on weekends
+
+&lt;img src="slides_files/figure-html/blr_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# Bengaluru: Activity on weekends
+
+&lt;img src="slides_files/figure-html/blr_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Bengaluru: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/blr_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# Bengaluru: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/blr_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# US tech Hubs: Activity on weekends
+
+&lt;img src="slides_files/figure-html/cities_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# US tech hubs: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/cities_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# NYC: Activity on weekends
+
+&lt;img src="slides_files/figure-html/nyc_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# NYC: Activity on weekends
+
+&lt;img src="slides_files/figure-html/nyc_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# NYC: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/nyc_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# NYC: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/nyc_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# SFO: Activity on weekends
+
+&lt;img src="slides_files/figure-html/sfo_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# SFO: Activity on weekends
+
+&lt;img src="slides_files/figure-html/sfo_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# SFO: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/sfo_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# SFO: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/sfo_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# SEA: Activity on weekends
+
+&lt;img src="slides_files/figure-html/sea_prop_wends_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# SEA: Activity on weekends
+
+&lt;img src="slides_files/figure-html/sea_prop_wends-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# SEA: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/sea_prop_whours_guess-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+count: false
+
+# SEA: Activity outside office hours
+
+&lt;img src="slides_files/figure-html/sea_prop_whours-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, center, middle
+name: demographics
+
+# User demographics
+
+---
+
+# GitHub 🤝 LinkedIn
+
+&lt;img src="pics/github-linkedin.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# A Pyrrhic victory
+
+&lt;img src="pics/eff-hiq-vs-linkedin.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Matched dataset for Seattle GitHub + Linkedin users
+
+After some very tedious webscraping, we match about **1,800** Seattle GitHub users
+to their LinkedIn profiles.
+
+Impute age based on education (degree and attendance dates).
+
+- `&lt;30` (16%)
+- `30--39` (26%)
+- `40--49` (14%)
+- `&gt;50` (7%)
+- Unmatched (38%)
+
+Impute gender using a mix of automated name-matching (good for Anglo names) and grad student crowd-sourcing (good for non-Anglo names).
+- `male` (90%)
+- `female` (7%)
+- Unmatched (3%)
+
+--
+
+In the plots that follow, I'm going to mark three "treatment" dates: 1) Microsoft and Amazon mandate remote work, 2) school closures, and 3) mayoral stay-at-home order.
+
+---
+
+# Age × gender effects: males, under 30
+
+&lt;img src="slides_files/figure-html/age_gender_mu30-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Age × gender effects: females, under 30
+
+&lt;img src="slides_files/figure-html/age_gender_fu30-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Age × gender effects: males, 30--39
+
+&lt;img src="slides_files/figure-html/age_gender_m30_39-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Age × gender effects: females, 30--39
+
+&lt;img src="slides_files/figure-html/age_gender_f30_39-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Age × gender effects: males, 40--49
+
+&lt;img src="slides_files/figure-html/age_gender_m40_49-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Age × gender effects: females, 40--49
+
+&lt;img src="slides_files/figure-html/age_gender_f40_49-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
