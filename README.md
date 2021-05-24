@@ -5,4 +5,4 @@ Repo containing my public presentations. To view a particular slide deck, go to 
 Quick links to some slides:
 
 - [COVID-19 + GitHub](http://grantmcdermott.com/presentations/covgit/slides.html)
-- [SAIL](https://github.com/grantmcdermott/presentations/SAIL/slides.html)
+- [SAIL](https://grantmcdermott.com/presentations/SAIL/slides.html)
