@@ -1,7 +1,7 @@
 ---
-title: "Working remotely or remotely working?"
-subtitle: "The effect of COVID-19 on tech worker productivity"
-author: "Grant McDermott (with Kendall Houghton and Ben Hansen)"
+title: "Labour reallocation and remote work"
+subtitle: "Evidence from millions of GitHub users during COVID-19"
+author: "Grant McDermott and Ben Hansen"
 date: "University of Oregon" #"`r format(Sys.time(), '%d %B %Y')`"
 output:
   xaringan::moon_reader:
